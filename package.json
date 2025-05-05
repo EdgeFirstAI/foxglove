@@ -1,0 +1,41 @@
+{
+  "name": "edgefirst-schemas",
+  "displayName": "EdgeFirst Schemas",
+  "description": "EdgeFirst Schemas for Foxglove Studio",
+  "publisher": "EdgeFirst",
+  "homepage": "https://github.com/EdgeFirstAI",
+  "version": "1.1.0",
+  "license": "AGPL-3.0",
+  "main": "./dist/extension.js",
+  "keywords": [],
+  "scripts": {
+    "build": "foxglove-extension build",
+    "foxglove:prepublish": "foxglove-extension build --mode production",
+    "lint": "eslint .",
+    "lint:ci": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "local-install": "foxglove-extension install",
+    "package": "foxglove-extension package",
+    "pretest": "foxglove-extension pretest"
+  },
+  "devDependencies": {
+    "@foxglove/eslint-plugin": "2.0.0",
+    "@foxglove/extension": "2.26.0",
+    "@types/react": "18.3.20",
+    "@types/react-dom": "18.3.7",
+    "create-foxglove-extension": "1.0.4",
+    "eslint": "9.26.0",
+    "prettier": "3.5.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "5.8.3",
+    "mirada": "^0.0.15"
+  },
+  "dependencies": {
+    "@foxglove/schemas": "1.7.0",
+    "@techstark/opencv-js": "^4.10.0-release.1",
+    "crypto-browserify": "^3.12.1",
+    "install": "^0.13.0",
+    "zstandard-wasm": "^1.5.0-rev.5"
+  }
+}
