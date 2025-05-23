@@ -271,9 +271,9 @@ function registerDetectConverter(extensionContext: ExtensionContext): void {
         if (b.distance === 0) {
           return;
         }
-        const x = b.distance;
-        const y = b.center_x;
-        const z = b.center_y;
+        const x = b.center_x;
+        const y = b.center_y;
+        const z = b.distance;
 
         const width = b.width;
         const height = b.height;
@@ -296,14 +296,14 @@ function registerDetectConverter(extensionContext: ExtensionContext): void {
           thickness: 2,
           scale_invariant: true,
           points: [
-            { x: -width / 2, y: -width / 2, z: -height / 2 },
-            { x: -width / 2, y: +width / 2, z: -height / 2 },
-            { x: -width / 2, y: +width / 2, z: +height / 2 },
-            { x: -width / 2, y: -width / 2, z: +height / 2 },
-            { x: +width / 2, y: -width / 2, z: -height / 2 },
-            { x: +width / 2, y: +width / 2, z: -height / 2 },
-            { x: +width / 2, y: +width / 2, z: +height / 2 },
-            { x: +width / 2, y: -width / 2, z: +height / 2 },
+            { x: -width / 2, y: -height / 2, z: -width / 2 },
+            { x: -width / 2, y: +height / 2, z: -width / 2 },
+            { x: -width / 2, y: +height / 2, z: +width / 2 },
+            { x: -width / 2, y: -height / 2, z: +width / 2 },
+            { x: +width / 2, y: -height / 2, z: -width / 2 },
+            { x: +width / 2, y: +height / 2, z: -width / 2 },
+            { x: +width / 2, y: +height / 2, z: +width / 2 },
+            { x: +width / 2, y: -height / 2, z: +width / 2 },
           ],
           color: box_color,
           colors: [],
@@ -315,8 +315,8 @@ function registerDetectConverter(extensionContext: ExtensionContext): void {
           pose: {
             position: {
               x,
-              y,
-              z: z + height / 2 + 0.2,
+              y: y - height / 2 - 0.2,
+              z,
             },
             orientation: {
               x: 0,
