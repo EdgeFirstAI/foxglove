@@ -1,4 +1,4 @@
-name: Upload Release Asset
+name: Release
 
 on:
   push:
@@ -6,20 +6,32 @@ on:
       - "v*.*.*"
 
 jobs:
-  build:
-    name: Upload Release Asset
+  release:
+    name: Build and Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install
-        run: 
-          npm ci
-      - name: Build
-        run: 
-          npm run package
-      - name: Release
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build and Package
+        run: npm run package
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            *.foxe
+          files: "*.foxe"
+          generate_release_notes: true

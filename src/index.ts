@@ -1,3 +1,4 @@
+import { ExtensionContext, Time } from "@foxglove/extension";
 import {
   ImageAnnotations,
   PointsAnnotation,
@@ -10,9 +11,8 @@ import {
   TextAnnotation,
   LinePrimitive,
   LineType,
-  TextPrimitive,  
+  TextPrimitive,
 } from "@foxglove/schemas";
-import { ExtensionContext, Time } from "@foxglove/extension";
 import CV from "@techstark/opencv-js";
 import zstd from "zstandard-wasm";
 
@@ -153,8 +153,10 @@ let box_label = "";
 function registerGlobalVariableGetter(extensionContext: ExtensionContext): void {
   extensionContext.registerTopicAliases((args) => {
     const { globalVariables } = args;
-    box_label = String(globalVariables[BOX_LABEL_VAR] ?? "");
-    radarcube_sequence = String(globalVariables[RADAR_SEQ_VAR] ?? "");
+    const boxLabelVar = globalVariables[BOX_LABEL_VAR];
+    box_label = typeof boxLabelVar === "string" ? boxLabelVar : "";
+    const seqVar = globalVariables[RADAR_SEQ_VAR];
+    radarcube_sequence = typeof seqVar === "string" ? seqVar : "";
     const rx = Number(globalVariables[RADAR_RX_VAR] ?? 0);
     if (isFinite(rx)) {
       radarcube_rx = rx;
@@ -215,6 +217,7 @@ function box_to_color_label(box: DetectBox2D): [Color, string] {
 
 function registerDetectConverter(extensionContext: ExtensionContext): void {
   extensionContext.registerMessageConverter({
+    type: "schema",
     fromSchemaName: "edgefirst_msgs/msg/Detect",
     toSchemaName: "foxglove.ImageAnnotations",
     converter: (inputMessage: DetectBoxes2D): ImageAnnotations => {
@@ -262,6 +265,7 @@ function registerDetectConverter(extensionContext: ExtensionContext): void {
     },
   });
   extensionContext.registerMessageConverter({
+    type: "schema",
     fromSchemaName: "edgefirst_msgs/msg/Detect",
     toSchemaName: "foxglove.SceneUpdate",
     converter: (inputMessage: DetectBoxes2D): SceneUpdate => {
@@ -297,13 +301,13 @@ function registerDetectConverter(extensionContext: ExtensionContext): void {
           scale_invariant: true,
           points: [
             { x: -width / 2, y: -height / 2, z: -width / 2 },
-            { x: -width / 2, y: +height / 2, z: -width / 2 },
-            { x: -width / 2, y: +height / 2, z: +width / 2 },
-            { x: -width / 2, y: -height / 2, z: +width / 2 },
-            { x: +width / 2, y: -height / 2, z: -width / 2 },
-            { x: +width / 2, y: +height / 2, z: -width / 2 },
-            { x: +width / 2, y: +height / 2, z: +width / 2 },
-            { x: +width / 2, y: -height / 2, z: +width / 2 },
+            { x: -width / 2, y: height / 2, z: -width / 2 },
+            { x: -width / 2, y: height / 2, z: width / 2 },
+            { x: -width / 2, y: -height / 2, z: width / 2 },
+            { x: width / 2, y: -height / 2, z: -width / 2 },
+            { x: width / 2, y: height / 2, z: -width / 2 },
+            { x: width / 2, y: height / 2, z: width / 2 },
+            { x: width / 2, y: -height / 2, z: width / 2 },
           ],
           color: box_color,
           colors: [],
@@ -373,6 +377,7 @@ zstd
   });
 function registerMaskConverter(extensionContext: ExtensionContext): void {
   extensionContext.registerMessageConverter({
+    type: "schema",
     fromSchemaName: "edgefirst_msgs/msg/Mask",
     toSchemaName: "foxglove_msgs/msg/RawImage",
     converter: (inputMessage: Mask): RawImage => {
@@ -421,6 +426,7 @@ function registerMaskConverter(extensionContext: ExtensionContext): void {
   });
 
   extensionContext.registerMessageConverter({
+    type: "schema",
     fromSchemaName: "edgefirst_msgs/msg/Mask",
     toSchemaName: "foxglove_msgs/msg/ImageAnnotations",
     converter: (inputMessage: Mask): ImageAnnotations => {
@@ -470,7 +476,13 @@ function registerMaskConverter(extensionContext: ExtensionContext): void {
         const img = CV.matFromArray(inputMessage.height, inputMessage.width, CV.CV_8UC1, d);
         const contours = new CV.MatVector();
         const hierarchy = new CV.Mat();
-        CV.findContours(img, contours, hierarchy, CV.RETR_CCOMP, CV.CHAIN_APPROX_SIMPLE);
+        CV.findContours(
+          img,
+          contours,
+          hierarchy,
+          CV.RETR_CCOMP as number,
+          CV.CHAIN_APPROX_SIMPLE as number,
+        );
 
         for (let j = 0; j < contours.size(); j++) {
           const tmp = contours.get(j);
@@ -524,6 +536,7 @@ const REVERSE_HEIGHT = true;
 
 function registerRadarCubeConverter(extensionContext: ExtensionContext): void {
   extensionContext.registerMessageConverter({
+    type: "schema",
     fromSchemaName: "edgefirst_msgs/msg/RadarCube",
     toSchemaName: "foxglove_msgs/msg/RawImage",
     converter: (inputMessage: RadarCube): RawImage => {
