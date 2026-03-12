@@ -1,5 +1,26 @@
 # EdgeFirst Schemas for Foxglove Studio - Changelog
 
+## 2.0.0
+
+### Breaking Changes
+
+- Removed `model_overlay` and `box_label` global variables — replaced by the Model Settings panel
+
+### Added
+
+- Model output visualization: `edgefirst_msgs/msg/Model` support with bounding boxes, mask contours, and colorized mask image converters
+- ModelInfo converter: reads `edgefirst_msgs/msg/ModelInfo` for class labels and background class detection
+- EdgeFirst Model Settings panel with native sidebar controls for boxes (enabled, colour, labels, score, track ID) and masks (enabled, colour)
+- Instance, semantic, and panoptic segmentation support with per-mode coloring
+- Background class filtering via ModelInfo labels (matches `background` or `bg`, case-insensitive)
+- Project documentation in `.github/copilot-instructions.md`
+
+### Changed
+
+- Box label composition now supports independent toggles for class name, score, and track ID (stacked vertically)
+- Box and mask colouring can be set to label/class hash or track UUID independently
+- Updated README with Model output documentation and panel setup instructions
+
 ## 1.2.0
 
 - Changed license from AGPL-3.0 to Apache-2.0

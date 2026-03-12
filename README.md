@@ -7,42 +7,90 @@ A [Foxglove Studio](https://foxglove.dev) extension that adds native visualizati
 
 ## Features
 
-### Object Detection Visualization
+### Model Output Visualization
+
+Converts `edgefirst_msgs/msg/Model` messages — the primary inference output schema — into multiple visualization formats:
+
+- **2D Image Annotations** — Bounding boxes and segmentation mask contours overlaid on camera frames. Boxes and masks can be independently enabled/disabled via the settings panel.
+- **3D Scene Entities** — Wireframe bounding boxes positioned in 3D space using detection distance data, with billboard text labels.
+- **Colorized Mask Image** — Instance and semantic segmentation masks rendered as an RGBA image. Instance masks are paired with their bounding boxes; semantic masks use per-class coloring.
+
+The `edgefirst_msgs/msg/ModelInfo` schema provides model metadata (class labels, model name) and is used to identify background classes for filtering.
+
+### Object Detection Visualization (Legacy)
 
 Converts `edgefirst_msgs/msg/Detect` messages into Foxglove annotations for both 2D and 3D panels:
 
-- **2D Image Annotations** — Bounding boxes with labels are overlaid on camera frames in Image panels. Boxes are drawn as colored rectangles with configurable label content (class name, confidence score, track ID, or combined).
-- **3D Scene Entities** — When detections include distance data, wireframe bounding boxes are rendered in the 3D panel at the detected object's position. Each box includes a billboard text label.
+- **2D Image Annotations** — Bounding boxes with labels overlaid on camera frames in Image panels.
+- **3D Scene Entities** — When detections include distance data, wireframe bounding boxes are rendered in the 3D panel.
 
-### Segmentation Mask Visualization
+### Segmentation Mask Visualization (Standalone)
 
 Converts `edgefirst_msgs/msg/Mask` messages for two complementary views:
 
-- **Colorized Overlay** — The per-pixel class mask is rendered as an RGBA image where each semantic class maps to a distinct color. Supports Zstandard-compressed masks for efficient bandwidth usage.
-- **Contour Annotations** — Uses OpenCV to extract contours from each class region, then renders them as filled polygon annotations that can be overlaid on camera frames in Image panels.
+- **Colorized Overlay** — The per-pixel class mask is rendered as an RGBA image where each semantic class maps to a distinct color. Supports Zstandard-compressed masks.
+- **Contour Annotations** — Uses OpenCV to extract contours from each class region, rendered as filled polygon annotations overlaid on camera frames.
 
 ### Radar Cube Visualization
 
-Converts `edgefirst_msgs/msg/RadarCube` messages into a mono16 grayscale image for visualization in Image panels. The radar cube dimensions (range, Doppler, azimuth, elevation, RX channels) are sliced according to configurable global variables, and the magnitude is log-scaled for visual clarity.
+Converts `edgefirst_msgs/msg/RadarCube` messages into a mono16 grayscale image for visualization in Image panels. The radar cube dimensions are sliced according to configurable global variables, and the magnitude is log-scaled for visual clarity.
 
 ## Supported Message Conversions
 
 | EdgeFirst Schema | Foxglove Schema | Panel Type |
 |---|---|---|
+| `edgefirst_msgs/msg/Model` | `foxglove.ImageAnnotations` | Image (boxes + contours) |
+| `edgefirst_msgs/msg/Model` | `foxglove.SceneUpdate` | 3D |
+| `edgefirst_msgs/msg/Model` | `foxglove_msgs/msg/RawImage` | Image (mask overlay) |
+| `edgefirst_msgs/msg/ModelInfo` | `foxglove.Log` | Log |
 | `edgefirst_msgs/msg/Detect` | `foxglove.ImageAnnotations` | Image |
 | `edgefirst_msgs/msg/Detect` | `foxglove.SceneUpdate` | 3D |
 | `edgefirst_msgs/msg/Mask` | `foxglove_msgs/msg/RawImage` | Image (overlay) |
 | `edgefirst_msgs/msg/Mask` | `foxglove_msgs/msg/ImageAnnotations` | Image (contours) |
 | `edgefirst_msgs/msg/RadarCube` | `foxglove_msgs/msg/RawImage` | Image |
 
-## Global Variables
+## Model Settings Panel
 
-The extension reads Foxglove [global variables](https://docs.foxglove.dev/docs/visualization/variables/) to control visualization behavior at runtime:
+The extension includes a custom **EdgeFirst Model Settings** panel that provides native sidebar controls for configuring Model and Detect output visualization. This replaces manual global variable entry with structured UI controls.
+
+### Setup
+
+1. Click the **Add Panel** button (+ icon) in the Foxglove layout toolbar
+2. Search for **"EdgeFirst Model Settings"** and click to add it to your layout
+3. Click on the panel to select it, then open the **panel settings sidebar** (click the gear/settings icon or press the sidebar toggle) to access the controls
+
+The panel body itself displays a placeholder message — all controls are in the settings sidebar when the panel is selected.
+
+### Settings
+
+**Boxes**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| Enabled | checkbox | on | Show bounding boxes from Model output on Image panels |
+| Colour | toggle | Label | Colour boxes by class label hash (`Label`) or by track UUID (`Track`). Falls back to instance ID when tracking is not enabled. |
+| Show Labels | checkbox | on | Display the class label text above each bounding box |
+| Show Score | checkbox | off | Display the confidence score for each detection |
+| Show Track ID | checkbox | off | Display the track UUID (first 8 characters). Shows instance ID when tracking is not enabled. |
+
+**Masks**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| Enabled | checkbox | on | Show segmentation mask contours and the RawImage mask visualization |
+| Colour | toggle | Class | Colour instance masks by class index (`Class`) or by track UUID (`Track`). Semantic masks always use class colours regardless of this setting. |
+
+Settings are persisted across Foxglove sessions and layout changes.
+
+> **Note:** Settings changes only take effect when new messages are processed. If playback is paused, step one frame forward or tap play/pause to see the updated visualization.
+
+### Radar Variables
+
+Radar cube visualization is configured via Foxglove [global variables](https://docs.foxglove.dev/docs/visualization/variables/) (not the settings panel):
 
 | Variable | Type | Default | Description |
 |---|---|---|---|
-| `box_label` | string | `"track"` | Controls detection label content. Options: `"label"`, `"score"`, `"label-score"`, or `"track"` (shows track ID with unique color). |
-| `radar_seq` | string | `""` | Selects the radar cube sequence. `"A"` for the first sequence, `"B"` or `""` for the second (if available). |
+| `radar_seq` | string | `""` | Selects the radar cube sequence. `"A"` for the first, `"B"` or `""` for the second. |
 | `radar_rx` | number | `0` | Selects which RX channel to visualize from the radar cube. |
 
 ## Install
