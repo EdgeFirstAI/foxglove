@@ -1,5 +1,10 @@
 # EdgeFirst Schemas for Foxglove Studio - Changelog
 
+## 2.0.1
+
+- Fixed security vulnerabilities in ajv, bn.js, minimatch, and serialize-javascript dependencies
+- Remaining low-severity advisories (elliptic, webpack) have no upstream fix available
+
 ## 2.0.0
 
 ### Breaking Changes

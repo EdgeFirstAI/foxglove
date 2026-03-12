@@ -4,7 +4,7 @@
   "description": "EdgeFirst Schemas for Foxglove Studio",
   "publisher": "EdgeFirst",
   "homepage": "https://github.com/EdgeFirstAI",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "Apache-2.0",
   "main": "./dist/extension.js",
   "keywords": [],
